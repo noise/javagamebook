@@ -12,11 +12,11 @@ import org.apache.log4j.*;
 
 public class GameConfig {
     public Object get(String key) {
-	//todo: gameconfig
-	return null;
+        //todo: gameconfig
+        return null;
     }
 
     public int getInt(String key, int defaultValue) {
-	return 0;
+        return 0;
     }
 }

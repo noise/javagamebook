@@ -4,7 +4,7 @@ import com.hypefiend.blackart2.common.*;
 
 /**
  * RPSGame.java
- * 
+ *
  * A rock/paper/scissors game between 2 players
  *
  * @author <a href="mailto:bret@hypefiend.com">bret barker</a>
@@ -12,9 +12,9 @@ import com.hypefiend.blackart2.common.*;
  */
 public class RPSGame {
     private static int nextId = 0;
-    
+
     private int gameId;
-    
+
     private Player player1;
     private Player player2;
 
@@ -26,68 +26,68 @@ public class RPSGame {
     private int ties;
 
     public RPSGame(Player p1, Player p2) {
-	gameId = getNextId();
-	player1 = p1;
-	player2 = p2;
-	player1.setInGame(true);
-	player2.setInGame(true);
+        gameId = getNextId();
+        player1 = p1;
+        player2 = p2;
+        player1.setInGame(true);
+        player2.setInGame(true);
 
-	resetGame();
+        resetGame();
     }
 
     private synchronized static int getNextId() {
-	return nextId++;
+        return nextId++;
     }
 
     public int getGameId() {
-	return gameId;
+        return gameId;
     }
     public Player getPlayer1() {
-	return player1;
+        return player1;
     }
     public Player getPlayer2() {
-	return player2;
+        return player2;
     }
 
     public Player getOpponent(String pid) {
-	return (pid.equals(player1.getPlayerId())) ? player2 : player1;
+        return (pid.equals(player1.getPlayerId())) ? player2 : player1;
     }
 
     public int getP1Wins() {
-	return p1Wins;
+        return p1Wins;
     }
     public void incP1Wins() {
-	p1Wins++;
+        p1Wins++;
     }
     public int getP2Wins() {
-	return p2Wins;
+        return p2Wins;
     }
     public void incP2Wins() {
-	p2Wins++;
+        p2Wins++;
     }
     public int getTies() {
-	return ties;
+        return ties;
     }
     public void incTies() {
-	ties++;
+        ties++;
     }
 
     public int getP1Move() {
-	return p1Move;
+        return p1Move;
     }
     public void setP1Move(int m) {
-	p1Move = m;
+        p1Move = m;
     }
 
     public int getP2Move() {
-	return p2Move;
+        return p2Move;
     }
     public void setP2Move(int m) {
-	p2Move = m;
+        p2Move = m;
     }
 
     public void resetGame() {
-	p1Move = -1;
-	p2Move = -1;
+        p1Move = -1;
+        p2Move = -1;
     }
 }

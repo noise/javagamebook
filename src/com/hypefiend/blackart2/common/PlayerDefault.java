@@ -6,7 +6,7 @@ import java.nio.channels.SocketChannel;
  * PlayerDefault.java
  *
  * Basic implementation of the Player interface
- * 
+ *
  * @author <a href="mailto:bret@hypefiend.com">bret barker</a>
  * @version 1.0
  */
@@ -21,44 +21,44 @@ public class PlayerDefault implements Player {
     private int gameId;
 
     public String getPlayerId() {
-	return playerId;
+        return playerId;
     }
     public void setPlayerId(String id) {
-	playerId = id;
+        playerId = id;
     }
 
     public String getSessionId() {
-	return sessionId;
+        return sessionId;
     }
     public void setSessionId(String id) {
-	sessionId = id;
+        sessionId = id;
     }
 
     public SocketChannel getChannel() {
-	return channel;
+        return channel;
     }
     public void setChannel(SocketChannel channel) {
-	this.channel = channel;
+        this.channel = channel;
     }
 
     public boolean loggedIn() {
-	return loggedIn;
+        return loggedIn;
     }
     public void setLoggedIn(boolean in) {
-	loggedIn = in;
+        loggedIn = in;
     }
 
     public boolean inGame() {
-	return inGame;
+        return inGame;
     }
     public void setInGame(boolean in) {
-	inGame = in;
+        inGame = in;
     }
 
     public int getGameId() {
-	return gameId;
+        return gameId;
     }
     public void setGameId(int gid) {
-	gameId = gid;
+        gameId = gid;
     }
 }

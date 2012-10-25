@@ -16,46 +16,46 @@ public class EventQueue {
     private LinkedList events;
     private int count = 0;
 
-    /** 
+    /**
      * Constructor.  Initializes the logger and event list
      */
-    public EventQueue (String name){
-	log = Logger.getLogger("EventQueue: " + name);
-	events = new LinkedList();
+    public EventQueue (String name) {
+        log = Logger.getLogger("EventQueue: " + name);
+        events = new LinkedList();
     }
-    
-    /** 
+
+    /**
      * add an event to the queue
      */
     public synchronized void enQueue(GameEvent event) {
-	//	log.debug("enQueue " + event.hashCode());
-	events.addLast(event);
-	notifyAll();
+        //  log.debug("enQueue " + event.hashCode());
+        events.addLast(event);
+        notifyAll();
     }
 
-    /** 
-     * blocks until an event is available 
-     * and then removes and returns the first 
+    /**
+     * blocks until an event is available
+     * and then removes and returns the first
      * available event
      */
     public synchronized GameEvent deQueue() throws InterruptedException {
-	while (events.size() == 0) {
-	    count++;
-	    //	    log.debug("waiting, count: " + count);
-	    wait();
-	    count --;
-	}
+        while (events.size() == 0) {
+            count++;
+            //      log.debug("waiting, count: " + count);
+            wait();
+            count --;
+        }
 
-	GameEvent e = (GameEvent) events.removeFirst();
-	//	log.debug("deQueue " + e.hashCode());
-	return e;
+        GameEvent e = (GameEvent) events.removeFirst();
+        //  log.debug("deQueue " + e.hashCode());
+        return e;
     }
 
     /**
      * get the current # of events in the queue
      */
     public synchronized int size() {
-	return events.size();
+        return events.size();
     }
 
 }// EventQueue

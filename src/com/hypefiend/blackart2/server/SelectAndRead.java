@@ -38,173 +38,173 @@ public class SelectAndRead extends Thread {
     /**
      * Constructor.
      */
-    public SelectAndRead (GameServer gameServer){
-	this.gameServer = gameServer;
-	newClients = new LinkedList();
+    public SelectAndRead (GameServer gameServer) {
+        this.gameServer = gameServer;
+        newClients = new LinkedList();
     }
-    
-    /** 
+
+    /**
      * adds to the list of pending clients
      */
     public void addNewClient(SocketChannel clientChannel) {
-	synchronized (newClients) {
-	    newClients.addLast(clientChannel);
-	}
-	// force selector to return
-	// so our new client can get in the loop right away
-	selector.wakeup();
+        synchronized (newClients) {
+            newClients.addLast(clientChannel);
+        }
+        // force selector to return
+        // so our new client can get in the loop right away
+        selector.wakeup();
     }
-    
-    /** 
-     * loop forever, first doing our select() 
+
+    /**
+     * loop forever, first doing our select()
      * then check for new connections
      */
     public void run () {
-	try {
-	    selector = Selector.open();
+        try {
+            selector = Selector.open();
 
-	    while (true) {
-		select();
-		checkNewConnections();
-	    }
-	}
-	catch (IOException e) {
-	    log.fatal("exception while opening Selector", e);
-      	}
+            while (true) {
+                select();
+                checkNewConnections();
+            }
+        }
+        catch (IOException e) {
+            log.fatal("exception while opening Selector", e);
+        }
     }
-    
+
     /**
      * check for new connections
      * and register them with the selector
      */
     private void checkNewConnections() {
-	synchronized(newClients) {
-	    while (newClients.size() > 0) {
-		try {
-		    SocketChannel clientChannel = (SocketChannel)newClients.removeFirst();
-		    clientChannel.configureBlocking( false);
-		    clientChannel.register( selector, SelectionKey.OP_READ, new Attachment());
-		}
-		catch (ClosedChannelException cce) {
-		    log.error("channel closed", cce);
-		}
-		catch (IOException ioe) {
-		    log.error("ioexception on clientChannel", ioe);
-		}
-	    }
-	}
+        synchronized(newClients) {
+            while (newClients.size() > 0) {
+                try {
+                    SocketChannel clientChannel = (SocketChannel)newClients.removeFirst();
+                    clientChannel.configureBlocking( false);
+                    clientChannel.register( selector, SelectionKey.OP_READ, new Attachment());
+                }
+                catch (ClosedChannelException cce) {
+                    log.error("channel closed", cce);
+                }
+                catch (IOException ioe) {
+                    log.error("ioexception on clientChannel", ioe);
+                }
+            }
+        }
     }
 
-    /** 
+    /**
      * do our select, read from the channels
      * and hand off events to GameControllers
      */
     private void select() {
-	try {
-	    // this is a blocking select call but will 
-	    // be interrupted when new clients come in
-	    selector.select();
-	    Set readyKeys = selector.selectedKeys();
+        try {
+            // this is a blocking select call but will
+            // be interrupted when new clients come in
+            selector.select();
+            Set readyKeys = selector.selectedKeys();
 
-	    Iterator i = readyKeys.iterator();
-	    while (i.hasNext()) {
-		SelectionKey key = (SelectionKey) i.next();
-		i.remove();
-		SocketChannel channel = (SocketChannel) key.channel();
-		Attachment attachment = (Attachment) key.attachment();
+            Iterator i = readyKeys.iterator();
+            while (i.hasNext()) {
+                SelectionKey key = (SelectionKey) i.next();
+                i.remove();
+                SocketChannel channel = (SocketChannel) key.channel();
+                Attachment attachment = (Attachment) key.attachment();
 
-		// read from the channel
-		long nbytes = channel.read(attachment.readBuff);
-		// check for end-of-stream condition
-		if (nbytes == -1) {
-		    log.info("disconnect: " + channel.socket().getInetAddress() + 
-			     ", end-of-stream");
-		    //todo: cleanup client connection, remove from lists, etc.
-		    channel.close();
-		}
+                // read from the channel
+                long nbytes = channel.read(attachment.readBuff);
+                // check for end-of-stream condition
+                if (nbytes == -1) {
+                    log.info("disconnect: " + channel.socket().getInetAddress() +
+                             ", end-of-stream");
+                    //todo: cleanup client connection, remove from lists, etc.
+                    channel.close();
+                }
 
-		// check for a complete event
-		try {
-		    if (attachment.readBuff.position() >= attachment.HEADER_SIZE) {
-			attachment.readBuff.flip();
+                // check for a complete event
+                try {
+                    if (attachment.readBuff.position() >= attachment.HEADER_SIZE) {
+                        attachment.readBuff.flip();
 
-			// read as many events as are available in the buffer
-			while(attachment.eventReady()) {
-			    GameEvent event = getEvent(attachment);
-			    delegateEvent(event, channel);
-			    attachment.reset();
-			}
-			// prepare for more channel reading
-			attachment.readBuff.compact();
-		    }
-		}
-		catch (IllegalArgumentException e) {
-		    log.error("illegal arguement exception", e);
-		}
-	    }
-	}
-	catch (IOException ioe) {
-	    log.warn("error during select(): " + ioe.getMessage());
-	}
- 	catch (Exception e) {
- 	    log.error("exception during select()", e);
- 	}
+                        // read as many events as are available in the buffer
+                        while(attachment.eventReady()) {
+                            GameEvent event = getEvent(attachment);
+                            delegateEvent(event, channel);
+                            attachment.reset();
+                        }
+                        // prepare for more channel reading
+                        attachment.readBuff.compact();
+                    }
+                }
+                catch (IllegalArgumentException e) {
+                    log.error("illegal arguement exception", e);
+                }
+            }
+        }
+        catch (IOException ioe) {
+            log.warn("error during select(): " + ioe.getMessage());
+        }
+        catch (Exception e) {
+            log.error("exception during select()", e);
+        }
     }
 
     /**
      * read an event from the attachment's payload
      */
     private GameEvent getEvent(Attachment attachment) {
-	GameEvent event = null;
-	ByteBuffer bb = ByteBuffer.wrap(attachment.payload);
+        GameEvent event = null;
+        ByteBuffer bb = ByteBuffer.wrap(attachment.payload);
 
-	// get the controller and tell it to instantiate an event for us
-	GameController gc = gameServer.getGameControllerByHash(attachment.gameNameHash);
-	if (gc == null) {
-	    return null;
-	}
-	event = gc.createGameEvent();
-	
-	// read the event from the payload
-	event.read(bb);	
-	return event;
-    }  
+        // get the controller and tell it to instantiate an event for us
+        GameController gc = gameServer.getGameControllerByHash(attachment.gameNameHash);
+        if (gc == null) {
+            return null;
+        }
+        event = gc.createGameEvent();
+
+        // read the event from the payload
+        event.read(bb);
+        return event;
+    }
 
     /**
      * pass off an event to the appropriate GameController
      * based on the GameName of the event
      */
     private void delegateEvent(GameEvent event, SocketChannel channel) {
-	if (event != null && event.getGameName() == null) {
-	    log.error("GameServer.handleEvent() : gameName is null");
-	    return;
-	}
+        if (event != null && event.getGameName() == null) {
+            log.error("GameServer.handleEvent() : gameName is null");
+            return;
+        }
 
-	GameController gc = gameServer.getGameController(event.getGameName());
-	if (gc == null) {
-	    log.error("No GameController for gameName: " + event.getGameName());
-	    return;
-	}
+        GameController gc = gameServer.getGameController(event.getGameName());
+        if (gc == null) {
+            log.error("No GameController for gameName: " + event.getGameName());
+            return;
+        }
 
-	Player p = gameServer.getPlayerById(event.getPlayerId());
-	if (p != null) {
-	    if (p.getChannel() != channel) {
-		log.warn("player is on a new channel, must be reconnect.");
-		p.setChannel(channel);
-	    }
-	}
-	else {
-	    // first time we see a playerId, create the Player object
-	    // and populate the channel, and also add to our lists
-	    p = gc.createPlayer();
-	    p.setPlayerId(event.getPlayerId());
-	    p.setChannel(channel);
-	    gameServer.addPlayer(p);
-	    log.debug("delegate event, new player created and channel set, player:" + 
-		      p.getPlayerId() + ", channel: " + channel);
-	}	
-	
-	gc.handleEvent(event);
+        Player p = gameServer.getPlayerById(event.getPlayerId());
+        if (p != null) {
+            if (p.getChannel() != channel) {
+                log.warn("player is on a new channel, must be reconnect.");
+                p.setChannel(channel);
+            }
+        }
+        else {
+            // first time we see a playerId, create the Player object
+            // and populate the channel, and also add to our lists
+            p = gc.createPlayer();
+            p.setPlayerId(event.getPlayerId());
+            p.setChannel(channel);
+            gameServer.addPlayer(p);
+            log.debug("delegate event, new player created and channel set, player:" +
+                      p.getPlayerId() + ", channel: " + channel);
+        }
+
+        gc.handleEvent(event);
     }
 
 }// SelectAndRead

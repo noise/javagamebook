@@ -28,107 +28,107 @@ public class RPSClient extends GameClient {
      * main.
      */
     public static void main(String args[] ) {
-	// setup log4j
-	BasicConfigurator.configure();
+        // setup log4j
+        BasicConfigurator.configure();
 
-	//todo: check cmd-line arguments
+        //todo: check cmd-line arguments
 
-	// fire up the client
-	RPSClient gc = new RPSClient();
-	gc.init(args);
-	gc.start();
+        // fire up the client
+        RPSClient gc = new RPSClient();
+        gc.init(args);
+        gc.start();
     }
 
-    /** 
-     * call GameClient.init() 
+    /**
+     * call GameClient.init()
      * and start our ConsoleEventReader
      */
     public void init(String args[]) {
-	super.init(args);
-	consoleReader = new RPSConsoleEventReader(this, inQueue, outQueue);
-	consoleReader.start();
+        super.init(args);
+        consoleReader = new RPSConsoleEventReader(this, inQueue, outQueue);
+        consoleReader.start();
     }
-	
-    /** 
+
+    /**
      * shutdown the client
      */
     protected void shutdown() {
-	consoleReader.shutdown();
-	super.shutdown();
+        consoleReader.shutdown();
+        super.shutdown();
     }
 
-    /** 
+    /**
      * handle incoming GameEvents from the EventQueue
      */
     protected void processIncomingEvents() {
-	GameEvent inEvent;
-	while (inQueue.size() > 0) {
-	    try {
-		inEvent = inQueue.deQueue();
+        GameEvent inEvent;
+        while (inQueue.size() > 0) {
+            try {
+                inEvent = inQueue.deQueue();
 
-		switch (inEvent.getType()) {
-		case GameEventDefault.S_LOGIN_ACK_OK:
-		    break;
-		case GameEventDefault.SB_LOGIN:
-		    stdOut( "login: " + inEvent.getMessage());
-		    break;
-		case GameEventDefault.SB_LOGOUT:
-		    stdOut( "logout: " + inEvent.getMessage());
-		    break;
-		case GameEventDefault.SB_CHAT_MSG:
-		    stdOut( inEvent.getPlayerId() + ": " + inEvent.getMessage());
-		    break;
-		case GameEventDefault.S_DISCONNECT:
-		    stdErr( "disconnected from server: " + inEvent.getMessage());
-		    shutdown();
-		    break;
-		case GameEventDefault.S_JOIN_GAME_ACK_OK:
-		    stdOut( inEvent.getMessage());
-		    inGame = true;
-		    break;
-		case GameEventDefault.S_JOIN_GAME_ACK_FAIL:
-		    stdOut( inEvent.getMessage());
-		    inGame = false;
-		    break;
-		case GameEventDefault.SB_PLAYER_QUIT:
-		    stdOut( inEvent.getMessage());
-		    inGame = false;
-		    break;		    
-		default:
-		    stdOut( inEvent.getMessage());
-		    break;
-		}
-	    }
-	    catch (InterruptedException ie) {}
-	}
+                switch (inEvent.getType()) {
+                case GameEventDefault.S_LOGIN_ACK_OK:
+                    break;
+                case GameEventDefault.SB_LOGIN:
+                    stdOut( "login: " + inEvent.getMessage());
+                    break;
+                case GameEventDefault.SB_LOGOUT:
+                    stdOut( "logout: " + inEvent.getMessage());
+                    break;
+                case GameEventDefault.SB_CHAT_MSG:
+                    stdOut( inEvent.getPlayerId() + ": " + inEvent.getMessage());
+                    break;
+                case GameEventDefault.S_DISCONNECT:
+                    stdErr( "disconnected from server: " + inEvent.getMessage());
+                    shutdown();
+                    break;
+                case GameEventDefault.S_JOIN_GAME_ACK_OK:
+                    stdOut( inEvent.getMessage());
+                    inGame = true;
+                    break;
+                case GameEventDefault.S_JOIN_GAME_ACK_FAIL:
+                    stdOut( inEvent.getMessage());
+                    inGame = false;
+                    break;
+                case GameEventDefault.SB_PLAYER_QUIT:
+                    stdOut( inEvent.getMessage());
+                    inGame = false;
+                    break;
+                default:
+                    stdOut( inEvent.getMessage());
+                    break;
+                }
+            }
+            catch (InterruptedException ie) {}
+        }
     }
 
-    /** 
+    /**
      * return our GameName
      */
     public String getGameName() {
-	return "RPS";
+        return "RPS";
     }
 
-    /** 
+    /**
      * factory method to create GameEvents
      */
     public GameEvent createGameEvent() {
-	return new GameEventDefault();
+        return new GameEventDefault();
     }
-    
-    /** 
+
+    /**
      * factory method to create login GameEvents
      */
     public GameEvent createLoginEvent() {
-	return new GameEventDefault(GameEventDefault.C_LOGIN);
+        return new GameEventDefault(GameEventDefault.C_LOGIN);
     }
-    
-    /** 
+
+    /**
      * factory method to create disconnect GameEvents
      */
     public GameEvent createDisconnectEvent(String reason) {
-	return new GameEventDefault(GameEventDefault.S_DISCONNECT, reason);
+        return new GameEventDefault(GameEventDefault.S_DISCONNECT, reason);
     }
-    
+
 }

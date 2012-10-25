@@ -4,7 +4,7 @@ package com.hypefiend.blackart2.common;
  * Globals.java
  *
  * Common constants for client and server
- * 
+ *
  * @author <a href="mailto:bret@hypefiend.com">bret barker</a>
  * @version 1.0
  */
@@ -13,10 +13,10 @@ public class Globals {
     public static final int PORT = 8398;
 
     /** size of ByteBuffer for reading/writing from channels */
-    public static final int NET_BUFFER_SIZE=512;
+    public static final int NET_BUFFER_SIZE = 512;
 
     /** maximum event size in bytes */
-    public static final int MAX_EVENT_SIZE=5000;
+    public static final int MAX_EVENT_SIZE = 5000;
 
     /** interval to sleep between attempts to write to a channel. */
     public static final long CHANNEL_WRITE_SLEEP = 10L;
