@@ -1,4 +1,4 @@
-#!/bin /sh
+#!/bin/sh
 #
 # shell script to run the RPSClient
 # usage: client.sh <server_ip> <username>
