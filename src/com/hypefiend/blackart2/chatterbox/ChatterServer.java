@@ -57,6 +57,7 @@ public class ChatterServer extends Thread {
 
 	    // bind to localhost on designated port
 	    InetAddress addr = InetAddress.getLocalHost();
+        log.info("binding to " + addr);
 	    sSockChan.socket().bind(new InetSocketAddress(addr, PORT));
 
 	    // get a selector for multiplexing the client channels
