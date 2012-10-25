@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+
+<!-- ======================================================================= -->
+<!-- Ant build file                                                          -->
+<!-- builds the classes in the current directory                             -->
+<!-- ======================================================================= -->
+
+<project name="blackart_server" default="build" basedir=".">
+  <property name="srcdir" value="src"/>
+  <property name="destdir" value="bin"/>
+  <property name="confdir" value="conf"/>
+  <property name="resdir" value="res"/>
+  <property name="libdir" value="lib"/>
+  <property name="tempdir" value="tmpclasses"/>
+
+  <property name="build.compiler" value="modern"/>
+  <property name="build.compiler.emacs" value="on"/>
+
+  <property file="${user.home}/.ant.properties" />
+
+  <property name="classpath" value="${tempdir}:${libdir}/log4j-1.2.6.jar"/>
+
+  <!-- =================================================================== -->
+  <!-- Compiles the source code                                            -->
+  <!-- =================================================================== -->
+  <target name="compile">
+    <mkdir dir="${tempdir}"/>
+    <javac srcdir="${srcdir}"
+           destdir="${tempdir}"
+           classpath="${classpath}"
+           debug="on"
+           deprecation="on"
+           optimize="off" >
+	   <include name="**/*.java"/>
+    </javac>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Jar                                                                 -->
+  <!-- =================================================================== -->
+  <target name="jar" depends="compile">
+<!--
+    <jar jarfile="${destdir}/blackart.jar">
+      <fileset dir="${tempdir}" />
+      <fileset dir="${confdir}" />
+    </jar>
+-->
+  </target>
+  <!-- =================================================================== -->
+  <!-- Clean                                                               -->
+  <!-- =================================================================== -->
+  <target name="clean">
+    <delete dir="${tempdir}"/>
+  </target>
+  <!-- =================================================================== -->
+  <!-- Build                                                               -->
+  <!-- =================================================================== -->
+  <target name="build" depends="jar">
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Run                                                                 -->
+  <!-- =================================================================== -->
+  <target name="run" depends="">
+  <exec dir="${basedir}" executable="java" failonerror="true">
+      <arg line="-cp ${classpath}:${destdir}/blackart.jar com.hypefiend.blackart.server.GameServer"/>
+    </exec>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Dist                                                                -->
+  <!-- TODO: make a tarball of the whole dir                               -->
+  <!-- =================================================================== -->
+  <target name="dist" depends="">
+  </target>
+
+</project>
